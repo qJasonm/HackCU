@@ -1,0 +1,63 @@
+{
+  "name": "agentctl-watcher",
+  "displayName": "AgentCtl Ledger Watcher",
+  "description": "Automatically records agent file actions into a ledger.md blockchain ledger.",
+  "version": "0.1.0",
+  "publisher": "agentctl",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "activationEvents": ["onStartupFinished"],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "AgentCtl Ledger Watcher",
+      "properties": {
+        "agentctl.agentId": {
+          "type": "string",
+          "default": "antigravity",
+          "description": "Agent ID recorded in every ledger block."
+        },
+        "agentctl.ledgerPath": {
+          "type": "string",
+          "default": "",
+          "description": "Absolute path to ledger.md. Defaults to <workspace root>/ledger.md."
+        },
+        "agentctl.recordFileSaves": {
+          "type": "boolean",
+          "default": true,
+          "description": "Append a block whenever a file is saved."
+        },
+        "agentctl.recordFileCreations": {
+          "type": "boolean",
+          "default": true,
+          "description": "Append a block whenever a new file is created."
+        },
+        "agentctl.recordFileDeletions": {
+          "type": "boolean",
+          "default": true,
+          "description": "Append a block whenever a file is deleted."
+        },
+        "agentctl.excludePatterns": {
+          "type": "array",
+          "items": { "type": "string" },
+          "default": ["**/.git/**", "**/node_modules/**", "**/ledger.md", "**/__pycache__/**", "**/*.pyc"],
+          "description": "Glob patterns for files to ignore."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "agentctl.recordCustomAction",
+        "title": "AgentCtl: Record Custom Action"
+      },
+      {
+        "command": "agentctl.openLedger",
+        "title": "AgentCtl: Open Ledger"
+      },
+      {
+        "command": "agentctl.verifyChain",
+        "title": "AgentCtl: Verify Chain Integrity"
+      }
+    ]
+  }
+}
