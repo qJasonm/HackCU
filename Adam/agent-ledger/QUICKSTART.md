@@ -20,8 +20,8 @@ One command does everything — clones the repo, installs dependencies, builds, 
 
 ```bash
 # From inside your project directory:
-git clone https://github.com/qJasonm/HackCU /tmp/agent-ledger-install
-bash /tmp/agent-ledger-install/Adam/agent-ledger/setup.sh .
+git clone https://github.com/qJasonm/HackCU ~/.agent-ledger-repo
+bash ~/.agent-ledger-repo/Adam/agent-ledger/setup.sh .
 ```
 
 This will:
@@ -31,13 +31,25 @@ This will:
 - ✅ Create `.github/copilot-instructions.md` (auto-coordination rules)
 - ✅ Add `.ledger/` to your `.gitignore`
 
-Then start the server from your project directory:
+The setup script installs the server to `~/.agent-ledger/` and configures your project.
+
+Then start the server **from your project directory**:
 
 ```bash
-node ~/.agent-ledger/Adam/agent-ledger/packages/mcp-server/dist/index.js
+node ~/.agent-ledger/packages/mcp-server/dist/index.js
 ```
 
-> 💡 **Each project gets its own ledger.** The database (`.ledger/`) is created wherever you start the server from. To reset, just delete the `.ledger/` folder and restart.
+You'll see:
+```
+🔒 Agent Ledger MCP Server running on http://0.0.0.0:3000
+   DB: .ledger/ledger.db     ← created inside YOUR project
+```
+
+**Leave this terminal open.** Open http://localhost:3000/dashboard to watch live.
+
+> 💡 **Each project gets its own ledger.** The `.ledger/` database is created in whatever directory you run the server from. To reset, just delete `.ledger/` and restart.
+
+Now skip to **Part 3** (the setup script already created your VS Code config).
 
 ---
 
@@ -48,24 +60,21 @@ If you prefer to do it step by step:
 ### 1. Clone & build the server
 
 ```bash
-git clone https://github.com/qJasonm/HackCU ~/.agent-ledger
-cd ~/.agent-ledger/Adam/agent-ledger
+git clone https://github.com/qJasonm/HackCU ~/.agent-ledger-repo
+cd ~/.agent-ledger-repo/Adam/agent-ledger
 npm install -g pnpm
 pnpm install
 pnpm build
+
+# Copy to the canonical location
+cp -r . ~/.agent-ledger
 ```
 
 ### 2. Start the server from your project directory
 
 ```bash
 cd /path/to/your-project
-node ~/.agent-ledger/Adam/agent-ledger/packages/mcp-server/dist/index.js
-```
-
-You'll see:
-```
-🔒 Agent Ledger MCP Server running on http://0.0.0.0:3000
-   DB: .ledger/ledger.db     ← created inside YOUR project
+node ~/.agent-ledger/packages/mcp-server/dist/index.js
 ```
 
 **Leave this terminal open.**
@@ -78,7 +87,7 @@ Open **http://localhost:3000/dashboard** in your browser.
 
 In a second terminal:
 ```bash
-cd ~/.agent-ledger/Adam/agent-ledger
+cd ~/.agent-ledger
 bash demo.sh
 ```
 
@@ -102,7 +111,7 @@ In your project root, create this file:
       "type": "stdio",
       "command": "node",
       "args": [
-        "~/.agent-ledger/Adam/agent-ledger/packages/mcp-server/dist/mcp/bridge.js"
+        "/home/YOUR_USERNAME/.agent-ledger/packages/mcp-server/dist/mcp/bridge.js"
       ],
       "env": {
         "LEDGER_SERVER_URL": "http://localhost:3000"
@@ -112,7 +121,7 @@ In your project root, create this file:
 }
 ```
 
-> ⚠️ **Replace `/absolute/path/to/agent-ledger`** with the actual path where you cloned the server (e.g. `/home/you/agent-ledger`).
+> ⚠️ **Replace `YOUR_USERNAME`** with your actual username. You can find it by running `echo $HOME` in a terminal. **Do NOT use `~`** — VS Code doesn't expand it in JSON files.
 
 ### 2. Create `.github/copilot-instructions.md`
 
