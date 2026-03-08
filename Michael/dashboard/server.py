@@ -472,13 +472,15 @@ async def proxy_ollama(body: OllamaProxyBody):
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code,
                             detail=f"Ollama error: {e.response.text}")
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=504, detail=f"Ollama communication error (e.g. timeout): {str(e)}")
 
 
 # ---------------------------------------------------------------------------
-# REST — LLM Ledger Agent (Gemini)
+# REST — Overseer Agent (Gemini)
 #
 # Uses the Gemini REST API directly (no extra SDK needed).
-# The "Ledger LLM" reads agent scratchpad content and formats it into a
+# The "Overseer" reads agent scratchpad content and formats it into a
 # structured ledger block, acting like a GitHub commit summariser but for
 # agent actions.
 # ---------------------------------------------------------------------------
@@ -488,7 +490,7 @@ GEMINI_REST_URL = (
     "/gemini-2.0-flash:generateContent"
 )
 
-LEDGER_LLM_SYSTEM_PROMPT = """You are the Ledger Judge — an impartial AI whose ONLY job is "GitHub for Agents".
+OVERSEER_SYSTEM_PROMPT = """You are the Ledger Judge — an impartial AI whose ONLY job is "GitHub for Agents".
 
 You receive a scratchpad document that begins with a TASK CONTEXT section (the task that was assigned
 to the agent) followed by the agent's raw response, reasoning notes, stated changes, and any other output.
@@ -536,7 +538,7 @@ async def _call_gemini(scratchpad: str, api_key: str) -> dict:
 
     url = f"{GEMINI_REST_URL}?key={api_key}"
     request_body = {
-        "system_instruction": {"parts": [{"text": LEDGER_LLM_SYSTEM_PROMPT}]},
+        "system_instruction": {"parts": [{"text": OVERSEER_SYSTEM_PROMPT}]},
         "contents": [{"parts": [{"text": scratchpad}]}],
         "generationConfig": {
             "temperature": 0.1,
@@ -583,7 +585,7 @@ async def llm_status():
 @app.post("/api/llm/analyze")
 async def llm_analyze(body: LLMAnalyzeBody):
     """
-    Analyze scratchpad content with the Gemini Ledger LLM.
+    Analyze scratchpad content with the Gemini Overseer.
     Returns a suggested block payload WITHOUT committing it.
 
     The client may supply an API key in the body; otherwise the server's
@@ -624,8 +626,8 @@ async def llm_record(body: LLMRecordBody):
     if body.agent_id and block_dict.get("agent_id") in ("", "unknown", None):
         block_dict["agent_id"] = body.agent_id
 
-    agent_id   = block_dict.get("agent_id", body.agent_id or "llm-ledger")
-    action_type = block_dict.get("action_type", "llm_summary")
+    agent_id   = block_dict.get("agent_id", body.agent_id or "overseer")
+    action_type = block_dict.get("action_type", "overseer_summary")
     payload     = block_dict.get("payload", {})
 
     store = get_store()
