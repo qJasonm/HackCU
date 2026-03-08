@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>AgentCtl — Orchestration Dashboard</title>
+<title>ABC — Agent BlockChain Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -249,7 +249,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <!-- Header -->
 <header class="hdr">
-  <div class="logo"><div class="logo-icon">⊞</div> AgentCtl</div>
+  <div class="logo"><div class="logo-icon">⊞</div> ABC</div>
   <div class="chip" style="margin-left:12px"><span class="dot"></span> Live</div>
   <div class="hdr-stats">
     <div class="chip">Blocks <span class="val" id="hdr-blocks">—</span></div>
@@ -1460,7 +1460,7 @@ async function overseerScan() {
 }
 
 function overseerSystemPrompt() {
-  return `You are the Ledger Judge — an impartial AI whose ONLY job is "GitHub for Agents".
+  return `You are the Ledger Judge — an impartial AI whose ONLY job is to maintain the Agent BlockChain.
 
 You receive a scratchpad document containing an agent's reasoning, task context, and responses.
 Extract what the agent actually did and return ONE JSON object in this EXACT schema.

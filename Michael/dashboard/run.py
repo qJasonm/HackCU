@@ -1,5 +1,5 @@
 """
-Launcher for the AgentCtl Dashboard.
+Launcher for the ABC Dashboard.
 
 Usage:
     python dashboard/run.py --ledger ledger.md --port 7070
@@ -23,7 +23,7 @@ import dashboard.server as _server
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="AgentCtl Dashboard server")
+    parser = argparse.ArgumentParser(description="ABC Dashboard server")
     parser.add_argument("--ledger",         default="ledger.md",  help="Path to ledger.md")
     parser.add_argument("--host",           default="127.0.0.1",  help="Bind host")
     parser.add_argument("--port", type=int, default=7070,         help="Port")
@@ -52,16 +52,16 @@ def main() -> None:
         _server.SCRATCHPAD_DIR = (ledger_path.parent / "scratchpad").resolve()
         
     _server.SCRATCHPAD_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"[agentctl-dashboard] Scratchpad: {_server.SCRATCHPAD_DIR}")
+    print(f"[abc-dashboard] Scratchpad: {_server.SCRATCHPAD_DIR}")
     gemini_key = args.gemini_key or os.environ.get("GEMINI_API_KEY")
     if gemini_key:
         _server.GEMINI_API_KEY = gemini_key
-        print(f"[agentctl-dashboard] Gemini API key: configured ✓")
+        print(f"[abc-dashboard] Gemini API key: configured ✓")
     else:
-        print(f"[agentctl-dashboard] Gemini API key: not set (Overseer will require key from browser)")
+        print(f"[abc-dashboard] Gemini API key: not set (Overseer will require key from browser)")
 
-    print(f"[agentctl-dashboard] Ledger:    {ledger_path}")
-    print(f"[agentctl-dashboard] Dashboard: http://{args.host}:{args.port}")
+    print(f"[abc-dashboard] Ledger:    {ledger_path}")
+    print(f"[abc-dashboard] Dashboard: http://{args.host}:{args.port}")
 
     uvicorn.run(
         "dashboard.server:app",

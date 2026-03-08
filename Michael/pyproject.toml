@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "agentctl"
+name = "abc"
 version = "0.1.0"
-description = "GitHub for Agents — a CLI tool for managing agent action ledgers"
+description = "ABC (Agent BlockChain) — a CLI tool for managing immutable agent action ledgers"
 requires-python = ">=3.11"
 dependencies = [
     "typer[all]>=0.12",
@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-agentctl = "cli.main:app"
+abc = "cli.main:app"
 
 [tool.setuptools.packages.find]
 where = ["."]

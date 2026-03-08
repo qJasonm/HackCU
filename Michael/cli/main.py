@@ -1,5 +1,5 @@
 """
-agentctl — GitHub for Agents CLI
+abc — Agent BlockChain CLI
 
 Entry point for the Typer application. All sub-commands are registered here.
 """
@@ -11,9 +11,9 @@ import typer
 from cli.commands import diff, log, record, verify
 
 app = typer.Typer(
-    name="agentctl",
+    name="abc",
     help=(
-        "[bold cyan]agentctl[/bold cyan] — GitHub for Agents.\n\n"
+        "[bold cyan]abc[/bold cyan] — Agent BlockChain.\n\n"
         "Manage an append-only, immutable agent action ledger stored in a "
         "human-readable [bold]ledger.md[/bold] file. Record actions, inspect "
         "the log, diff payloads, and verify chain integrity."

@@ -1,10 +1,10 @@
 """
-agentctl log — display the ledger as a git log-style Rich table.
+abc log — display the ledger as a git log-style Rich table.
 
 Usage:
-    agentctl log
-    agentctl log --agent alice --limit 10
-    agentctl log --action task_assigned --since 5
+    abc log
+    abc log --agent alice --limit 10
+    abc log --action task_assigned --since 5
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ def log(
     if not ledger.exists():
         display.console.print(
             f"[yellow]Ledger not found at {ledger!r}.[/yellow]\n"
-            "Run [bold]agentctl record[/bold] to create it."
+            "Run [bold]abc record[/bold] to create it."
         )
         raise typer.Exit()
 

@@ -1,10 +1,10 @@
 """
-agentctl record — append a new block to the ledger.
+abc record — append a new block to the ledger.
 
 Usage:
-    agentctl record --agent-id alice --action task_assigned --payload '{"task":"foo"}'
-    agentctl record --agent-id alice --action ping -f payload.json
-    echo '{"task":"bar"}' | agentctl record --agent-id alice --action task_started
+    abc record --agent-id alice --action task_assigned --payload '{"task":"foo"}'
+    abc record --agent-id alice --action ping -f payload.json
+    echo '{"task":"bar"}' | abc record --agent-id alice --action task_started
 """
 
 from __future__ import annotations

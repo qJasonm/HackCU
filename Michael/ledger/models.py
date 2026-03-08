@@ -1,5 +1,5 @@
 """
-Pydantic models for the agentctl ledger.
+Pydantic models for the ABC ledger.
 """
 
 from __future__ import annotations

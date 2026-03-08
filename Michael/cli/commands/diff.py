@@ -1,9 +1,9 @@
 """
-agentctl diff — show the payload diff between two blocks.
+abc diff — show the payload diff between two blocks.
 
 Usage:
-    agentctl diff 1 2
-    agentctl diff 0 3 --ledger ./path/to/ledger.md
+    abc diff 1 2
+    abc diff 0 3 --ledger ./path/to/ledger.md
 """
 
 from __future__ import annotations

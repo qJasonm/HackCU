@@ -1,5 +1,5 @@
 """
-Rich-based display helpers for agentctl.
+Rich-based display helpers for abc.
 All console output goes through this module to keep formatting consistent.
 """
 

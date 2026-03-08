@@ -1,9 +1,9 @@
 """
-agentctl verify — re-compute the hash chain and report integrity.
+abc verify — re-compute the hash chain and report integrity.
 
 Usage:
-    agentctl verify
-    agentctl verify --ledger ./custom/ledger.md
+    abc verify
+    abc verify --ledger ./custom/ledger.md
 """
 
 from __future__ import annotations
@@ -29,7 +29,7 @@ def verify(
     if not ledger.exists():
         display.console.print(
             f"[yellow]Ledger not found at {ledger!r}.[/yellow]\n"
-            "Run [bold]agentctl record[/bold] to create it."
+            "Run [bold]abc record[/bold] to create it."
         )
         raise typer.Exit()
 

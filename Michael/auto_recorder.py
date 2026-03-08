@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-agentctl auto-recorder — watchdog-based file system watcher.
+abc auto-recorder — watchdog-based file system watcher.
 
 Automatically records file events into ledger.md as they happen.
 Useful for non-VS Code environments or for monitoring any directory.
@@ -27,8 +27,8 @@ except ImportError:
     print("Error: watchdog not installed. Run: pip install watchdog")
     sys.exit(1)
 
-# Add agentctl to path so we can reuse md_store
-sys.path.insert(0, str(Path(__file__).parent / "agentctl"))
+# Add abc to path so we can reuse md_store
+sys.path.insert(0, str(Path(__file__).parent / "abc"))
 
 from ledger.md_store import MarkdownLedgerStore
 from ledger.models import ActionRecord
@@ -38,7 +38,7 @@ logging.basicConfig(
     format="%(asctime)s  %(levelname)s  %(message)s",
     datefmt="%H:%M:%S",
 )
-log = logging.getLogger("agentctl.watcher")
+log = logging.getLogger("abc.watcher")
 
 DEFAULT_EXCLUDE = [
     "*.pyc",
@@ -155,7 +155,7 @@ class LedgerEventHandler(FileSystemEventHandler):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="agentctl auto-recorder (watchdog)")
+    parser = argparse.ArgumentParser(description="abc auto-recorder (watchdog)")
     parser.add_argument(
         "--watch",
         default=".",
@@ -183,7 +183,7 @@ def main() -> None:
     ledger_path = Path(args.ledger).resolve()
     exclude = DEFAULT_EXCLUDE + args.exclude
 
-    log.info("AgentCtl auto-recorder starting")
+    log.info("ABC auto-recorder starting")
     log.info("  Watching:   %s", watch_dir)
     log.info("  Agent ID:   %s", args.agent_id)
     log.info("  Ledger:     %s", ledger_path)

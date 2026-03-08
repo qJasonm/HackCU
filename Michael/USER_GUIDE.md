@@ -1,12 +1,12 @@
-# AgentCtl User Guide
+# ABC (Agent BlockChain) User Guide
 
-Welcome! This guide will walk you through everything you need to know to set up and use AgentCtl from scratch—even if you've never used a command-line tool before.
+Welcome! This guide will walk you through everything you need to know to set up and use **ABC** from scratch—even if you've never used a command-line tool before.
 
 ---
 
-## What is AgentCtl?
+## What is ABC?
 
-**AgentCtl** is like a "diary" or "audit trail" for AI agents. When AI agents perform tasks (like writing code, answering questions, or making decisions), AgentCtl records *exactly* what they did, when they did it, and why—in a way that **cannot be tampered with**.
+**ABC (Agent BlockChain)** is like a "diary" or "audit trail" for AI agents. When AI agents perform tasks (like writing code, answering questions, or making decisions), ABC records *exactly* what they did, when they did it, and why—in a way that **cannot be tampered with**.
 
 ### Why does this matter?
 
@@ -15,7 +15,7 @@ Imagine you have an AI agent that manages files or writes code for you. Later, y
 - "Who told it to delete that file?"
 - "Can I trust that this log hasn't been modified?"
 
-AgentCtl answers all of these questions by using **blockchain-style technology**—every action is recorded with a unique "fingerprint" (called a **hash**) that links to the previous record. If anyone tries to change past records, the fingerprints won't match, and you'll know something was tampered with.
+ABC answers all of these questions by using **blockchain-style technology**—every action is recorded with a unique "fingerprint" (called a **hash**) that links to the previous record. If anyone tries to change past records, the fingerprints won't match, and you'll know something was tampered with.
 
 ### Key Concepts (Quick Glossary)
 
@@ -36,7 +36,7 @@ Before you start, make sure you have these installed on your computer:
 
 ### 1. Python 3.11 or higher
 
-Python is a programming language that AgentCtl is built with.
+Python is a programming language that ABC is built with.
 
 **To check if you have Python installed:**
 ```bash
@@ -64,13 +64,13 @@ pip3 --version
 
 ### 3. A Code Editor (Recommended: VS Code)
 
-While not strictly required, **Visual Studio Code** (VS Code) makes it easier to work with AgentCtl. Download it from [code.visualstudio.com](https://code.visualstudio.com/).
+While not strictly required, **Visual Studio Code** (VS Code) makes it easier to work with ABC. Download it from [code.visualstudio.com](https://code.visualstudio.com/).
 
 ---
 
 ## Installation (Step-by-Step)
 
-Follow these steps to get AgentCtl running in your project:
+Follow these steps to get ABC running in your project:
 
 ### Step 1: Open a Terminal
 
@@ -101,23 +101,23 @@ cd ~/Documents/my-ai-project
 - Use `ls` (Mac/Linux) or `dir` (Windows) to see what's in the current folder
 - Use `cd ..` to go up one folder level
 
-### Step 3: Copy AgentCtl Files Into Your Project
+### Step 3: Copy ABC Files Into Your Project
 
-Copy the entire AgentCtl folder into your project. You need these folders:
+Copy the entire ABC folder into your project. You need these folders:
 - `cli/` — The command-line interface
 - `ledger/` — Core logic for the blockchain ledger
 - `dashboard/` — Web-based visual interface
 - `pyproject.toml` — Configuration file
 
-### Step 4: Install AgentCtl
+### Step 4: Install ABC
 
-From your terminal, navigate into the AgentCtl folder and install it:
+From your terminal, navigate into the ABC folder and install it:
 
 ```bash
-# Navigate to the agentctl folder (adjust path as needed)
-cd agentctl
+# Navigate to the abc folder (adjust path as needed)
+cd abc
 
-# Install AgentCtl and its dependencies
+# Install ABC and its dependencies
 pip install -e .
 ```
 
@@ -133,15 +133,15 @@ pip install --user -e .
 
 ### Step 5: Verify Installation
 
-Test that AgentCtl was installed correctly:
+Test that ABC was installed correctly:
 
 ```bash
-agentctl --help
+abc --help
 ```
 
 You should see a help message listing available commands:
 ```
-agentctl — GitHub for Agents.
+abc — Agent BlockChain.
 
 Manage an append-only, immutable agent action ledger stored in a human-readable
 ledger.md file. Record actions, inspect the log, diff payloads, and verify 
@@ -158,14 +158,14 @@ Commands:
 
 ## Using the CLI (Command Line Interface)
 
-The CLI is the primary way to interact with AgentCtl. Here are the main commands:
+The CLI is the primary way to interact with ABC. Here are the main commands:
 
 ### Recording an Action
 
 When an agent does something, record it to the ledger:
 
 ```bash
-agentctl record --agent-id my-agent --action task_completed --payload '{"task": "Generated report", "files": ["report.pdf"]}'
+abc record --agent-id my-agent --action task_completed --payload '{"task": "Generated report", "files": ["report.pdf"]}'
 ```
 
 **Breaking this down:**
@@ -182,7 +182,7 @@ agentctl record --agent-id my-agent --action task_completed --payload '{"task": 
 
 **Using a JSON file instead of typing it out:**
 ```bash
-agentctl record --agent-id my-agent --action task_completed --file payload.json
+abc record --agent-id my-agent --action task_completed --file payload.json
 ```
 
 ### Viewing the Ledger
@@ -190,7 +190,7 @@ agentctl record --agent-id my-agent --action task_completed --file payload.json
 See all recorded actions:
 
 ```bash
-agentctl log
+abc log
 ```
 
 This shows a formatted table with:
@@ -204,16 +204,16 @@ This shows a formatted table with:
 **Filtering the log:**
 ```bash
 # Only show actions from a specific agent
-agentctl log --agent my-agent
+abc log --agent my-agent
 
 # Only show specific action types
-agentctl log --action task_completed
+abc log --action task_completed
 
 # Show last 10 entries
-agentctl log --limit 10
+abc log --limit 10
 
 # Show entries after block #5
-agentctl log --since 5
+abc log --since 5
 ```
 
 ### Verifying Integrity
@@ -221,7 +221,7 @@ agentctl log --since 5
 Check that no one has tampered with the ledger:
 
 ```bash
-agentctl verify
+abc verify
 ```
 
 If everything is intact, you'll see a success message with all green checkmarks. If tampering is detected, you'll see exactly which block was modified.
@@ -231,7 +231,7 @@ If everything is intact, you'll see a success message with all green checkmarks.
 See what changed between two blocks:
 
 ```bash
-agentctl diff 3 7
+abc diff 3 7
 ```
 
 This compares the payload of block #3 with block #7, showing additions (`+`) and deletions (`-`).
@@ -254,7 +254,7 @@ python dashboard/run.py
 
 You should see:
 ```
-[agentctl-dashboard] Scratchpad: /your/project/scratchpad
+[abc-dashboard] Scratchpad: /your/project/scratchpad
 INFO:     Uvicorn running on http://127.0.0.1:7070
 ```
 
@@ -359,16 +359,16 @@ your-project/
 
 ## Troubleshooting Common Issues
 
-### "command not found: agentctl"
+### "command not found: abc"
 
-**Problem:** The system can't find the agentctl command.
+**Problem:** The system can't find the abc command.
 
 **Solutions:**
-1. Make sure you ran `pip install -e .` in the agentctl folder
-2. Try using `python -m cli.main` instead of `agentctl`
+1. Make sure you ran `pip install -e .` in the abc folder
+2. Try using `python -m cli.main` instead of `abc`
 3. Your Python scripts folder might not be in your PATH. Try:
    ```bash
-   pip show agentctl  # Shows where it's installed
+   pip show abc  # Shows where it's installed
    ```
 
 ### "No module named 'typer'" or similar
@@ -386,7 +386,7 @@ pip install typer[all] rich pydantic
 
 **Solution:** Record your first action to create the ledger:
 ```bash
-agentctl record --agent-id my-agent --action init --payload '{"message": "Ledger initialized"}'
+abc record --agent-id my-agent --action init --payload '{"message": "Ledger initialized"}'
 ```
 
 ### Dashboard shows blank page
@@ -417,12 +417,12 @@ Then open http://127.0.0.1:8080 instead.
 
 | What you want to do | Command |
 |---------------------|---------|
-| See all commands | `agentctl --help` |
-| Record an action | `agentctl record --agent-id NAME --action TYPE --payload '{...}'` |
-| View ledger | `agentctl log` |
-| Filter by agent | `agentctl log --agent NAME` |
-| Verify integrity | `agentctl verify` |
-| Compare blocks | `agentctl diff BLOCK1 BLOCK2` |
+| See all commands | `abc --help` |
+| Record an action | `abc record --agent-id NAME --action TYPE --payload '{...}'` |
+| View ledger | `abc log` |
+| Filter by agent | `abc log --agent NAME` |
+| Verify integrity | `abc verify` |
+| Compare blocks | `abc diff BLOCK1 BLOCK2` |
 | Start dashboard | `python dashboard/run.py` |
 | Dashboard URL | http://127.0.0.1:7070 |
 
@@ -430,12 +430,12 @@ Then open http://127.0.0.1:8080 instead.
 
 ## Next Steps
 
-Now that AgentCtl is set up, here are some things you can try:
+Now that ABC is set up, here are some things you can try:
 
 1. **Record a test action** to make sure everything works
 2. **Open the dashboard** and explore the interface
-3. **Connect it to your AI agents** by calling `agentctl record` after each agent action
-4. **Set up automated recording** by integrating AgentCtl into your agent's code
+3. **Connect it to your AI agents** by calling `abc record` after each agent action
+4. **Set up automated recording** by integrating ABC into your agent's code
 
 For programmatic usage, you can import the ledger directly in Python:
 ```python

@@ -1,5 +1,5 @@
 """
-AgentCtl Dashboard — FastAPI backend
+ABC Dashboard — FastAPI backend
 
 Serves the HTML dashboard and exposes REST + SSE APIs backed by ledger.md.
 
@@ -23,7 +23,7 @@ from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
 # ---------------------------------------------------------------------------
-# Make sure the agentctl package root is on sys.path
+# Make sure the abc package root is on sys.path
 # ---------------------------------------------------------------------------
 _DASHBOARD_DIR = Path(__file__).parent
 _ROOT = _DASHBOARD_DIR.parent
@@ -48,7 +48,7 @@ def get_store() -> MarkdownLedgerStore:
 # ---------------------------------------------------------------------------
 # App
 # ---------------------------------------------------------------------------
-app = FastAPI(title="AgentCtl Dashboard", version="0.2.0")
+app = FastAPI(title="ABC Dashboard", version="0.2.0")
 
 app.add_middleware(
     CORSMiddleware,
@@ -439,7 +439,7 @@ GEMINI_REST_URL = (
     "/gemini-2.0-flash:generateContent"
 )
 
-OVERSEER_SYSTEM_PROMPT = """You are the Ledger Judge — an impartial AI whose ONLY job is "GitHub for Agents".
+OVERSEER_SYSTEM_PROMPT = """You are the Ledger Judge — an impartial AI whose ONLY job is to maintain the Agent BlockChain.
 
 You receive a scratchpad document that begins with a TASK CONTEXT section (the task that was assigned
 to the agent) followed by the agent's raw response, reasoning notes, stated changes, and any other output.
