@@ -125,7 +125,7 @@ From your terminal, navigate into the cloned ABC folder and install it:
 
 ```bash
 # Navigate to the abc folder (adjust path as needed)
-cd abc
+cd HACKCU/abc
 
 # Install ABC and its dependencies
 pip install -e .
