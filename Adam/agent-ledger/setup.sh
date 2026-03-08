@@ -45,29 +45,39 @@ if ! command -v pnpm &> /dev/null; then
 fi
 info "pnpm $(pnpm -v) ✓"
 
-# ---- Determine install location ----
+# ---- Install to ~/.agent-ledger ----
 
+INSTALL_DIR="${HOME}/.agent-ledger"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}" 2>/dev/null)" && pwd 2>/dev/null || echo "")"
 
-# Check if we're already inside the agent-ledger repo
+# Find the source agent-ledger directory
 if [ -f "$SCRIPT_DIR/packages/mcp-server/package.json" ]; then
-  LEDGER_DIR="$SCRIPT_DIR"
-  info "Using existing install at: $LEDGER_DIR"
+  SOURCE_DIR="$SCRIPT_DIR"
 elif [ -f "./packages/mcp-server/package.json" ]; then
-  LEDGER_DIR="$(pwd)"
-  info "Using existing install at: $LEDGER_DIR"
+  SOURCE_DIR="$(pwd)"
 else
-  # Clone fresh
-  step "Cloning Agent Ledger..."
-  CLONE_DIR="${HOME}/.agent-ledger"
-  if [ -d "$CLONE_DIR" ]; then
-    info "Found existing clone at $CLONE_DIR — pulling latest..."
-    git -C "$CLONE_DIR" pull --quiet 2>/dev/null || true
-  else
-    git clone --quiet https://github.com/qJasonm/HackCU "$CLONE_DIR"
-  fi
-  LEDGER_DIR="$CLONE_DIR/Adam/agent-ledger"
+  SOURCE_DIR=""
 fi
+
+# Copy/clone to the permanent install location
+if [ -d "$INSTALL_DIR/packages" ]; then
+  info "Existing install found at $INSTALL_DIR"
+elif [ -n "$SOURCE_DIR" ]; then
+  step "Installing to $INSTALL_DIR..."
+  mkdir -p "$INSTALL_DIR"
+  cp -r "$SOURCE_DIR/"* "$INSTALL_DIR/" 2>/dev/null
+  cp -r "$SOURCE_DIR/".* "$INSTALL_DIR/" 2>/dev/null || true
+  info "Copied to $INSTALL_DIR ✓"
+else
+  step "Cloning Agent Ledger..."
+  git clone --quiet https://github.com/qJasonm/HackCU /tmp/_agent-ledger-clone
+  mkdir -p "$INSTALL_DIR"
+  cp -r /tmp/_agent-ledger-clone/Adam/agent-ledger/* "$INSTALL_DIR/"
+  rm -rf /tmp/_agent-ledger-clone
+  info "Installed to $INSTALL_DIR ✓"
+fi
+
+LEDGER_DIR="$INSTALL_DIR"
 
 # ---- Install & build ----
 
