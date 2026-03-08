@@ -20,8 +20,8 @@ def payload_diff(old: dict[str, Any], new: dict[str, Any]) -> str:
     diff = difflib.unified_diff(
         old_lines,
         new_lines,
-        fromfile="original payload",
-        tofile="corrected payload",
+        fromfile="block A payload",
+        tofile="block B payload",
         lineterm="",
     )
     return "\n".join(diff)
