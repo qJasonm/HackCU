@@ -14,7 +14,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
-from ledger.models import ChainVerifyResult, CorrectionProposal, LedgerBlock
+from ledger.models import ChainVerifyResult, LedgerBlock
 
 # Force UTF-8 output so that Unicode symbols (✓ ✗ …) work on Windows terminals
 # that default to cp1252.  We write to a UTF-8 wrapper when the system encoding
@@ -35,13 +35,6 @@ console = Console(file=_stdout, highlight=False)
 
 _ACTION_STYLES: dict[str, str] = {
     "genesis": "dim",
-    "correction_applied": "bright_blue",
-}
-
-_STATUS_COLORS = {
-    "open": "yellow",
-    "merged": "green",
-    "rejected": "red",
 }
 
 
@@ -70,45 +63,6 @@ def print_block_table(
             Text(b.action_type, style=action_style),
             b.timestamp,
             b.block_hash[:12] + "…",
-        )
-    console.print(table)
-
-
-# ---------------------------------------------------------------------------
-# PR table
-# ---------------------------------------------------------------------------
-
-def print_pr_table(
-    prs: list[CorrectionProposal],
-    title: str = "Pull Requests",
-) -> None:
-    if not prs:
-        console.print("[dim]No pull requests found.[/dim]")
-        return
-
-    table = Table(
-        title=title,
-        box=box.ROUNDED,
-        show_lines=True,
-        header_style="bold cyan",
-        title_style="bold white",
-    )
-    table.add_column("PR ID", style="bold", min_width=10)
-    table.add_column("Target Block", justify="right", width=13)
-    table.add_column("Proposed By", min_width=14)
-    table.add_column("Reason", min_width=24)
-    table.add_column("Status", min_width=10)
-    table.add_column("Created At", style="dim", min_width=22)
-
-    for pr in prs:
-        color = _STATUS_COLORS.get(pr.status, "white")
-        table.add_row(
-            pr.pr_id,
-            str(pr.target_block_index),
-            pr.proposed_by,
-            pr.reason,
-            Text(pr.status, style=color),
-            pr.created_at,
         )
     console.print(table)
 
@@ -209,33 +163,3 @@ def print_block_detail(block: LedgerBlock) -> None:
         f"[dim]Payload:[/dim]\n{json.dumps(block.payload, indent=2)}"
     )
     console.print(Panel(inner, title=f"Block #{block.block_index}", box=box.ROUNDED))
-
-
-# ---------------------------------------------------------------------------
-# PR detail
-# ---------------------------------------------------------------------------
-
-def print_pr_detail(pr: CorrectionProposal, target_block: LedgerBlock | None) -> None:
-    import json
-    from ledger.diff import payload_diff
-
-    color = _STATUS_COLORS.get(pr.status, "white")
-    inner = (
-        f"[dim]PR ID:[/dim]        {pr.pr_id}\n"
-        f"[dim]Proposed by:[/dim]  [bold]{pr.proposed_by}[/bold]\n"
-        f"[dim]Target block:[/dim] #{pr.target_block_index}\n"
-        f"[dim]Reason:[/dim]       {pr.reason}\n"
-        f"[dim]Status:[/dim]       [{color}]{pr.status}[/{color}]\n"
-        f"[dim]Created:[/dim]      {pr.created_at}"
-    )
-    console.print(Panel(inner, title=f"PR {pr.pr_id}", box=box.ROUNDED))
-
-    if target_block:
-        console.print("\n[bold]Payload diff[/bold] (original → proposed):\n")
-        diff_str = payload_diff(target_block.payload, pr.corrected_payload)
-        print_diff(diff_str)
-    else:
-        console.print(
-            f"\n[yellow]Target block #{pr.target_block_index} not found — "
-            "cannot render diff.[/yellow]"
-        )

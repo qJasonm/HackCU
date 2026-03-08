@@ -14,7 +14,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import AsyncGenerator, Literal, Optional
+from typing import AsyncGenerator, Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, HTMLResponse
@@ -180,31 +180,6 @@ async def unregister_agent(agent_id: str):
 
 
 # ---------------------------------------------------------------------------
-# REST — pull requests
-# ---------------------------------------------------------------------------
-
-@app.get("/api/prs")
-async def list_prs(status: Optional[str] = None):
-    store = get_store()
-    prs = store.list_prs(status=status)
-    return [p.model_dump() for p in prs]
-
-
-class PRReviewBody(BaseModel):
-    decision: Literal["merge", "reject"]
-
-
-@app.post("/api/prs/{pr_id}/review")
-async def review_pr(pr_id: str, body: PRReviewBody):
-    store = get_store()
-    try:
-        pr = store.review_pr(pr_id, body.decision)
-        return pr.model_dump()
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-# ---------------------------------------------------------------------------
 # REST — record a new block
 # ---------------------------------------------------------------------------
 
@@ -228,32 +203,6 @@ async def record_block(body: RecordBody):
         return block.model_dump()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# ---------------------------------------------------------------------------
-# REST — open a PR
-# ---------------------------------------------------------------------------
-
-class OpenPRBody(BaseModel):
-    target_block_index: int
-    proposed_by: str
-    corrected_payload: dict
-    reason: str
-
-
-@app.post("/api/prs")
-async def open_pr(body: OpenPRBody):
-    store = get_store()
-    try:
-        pr = store.open_pr(
-            target_block_index=body.target_block_index,
-            proposed_by=body.proposed_by,
-            corrected_payload=body.corrected_payload,
-            reason=body.reason,
-        )
-        return pr.model_dump()
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 
 # ---------------------------------------------------------------------------

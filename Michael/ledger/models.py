@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -53,18 +53,6 @@ class ChainVerifyResult(BaseModel):
     block_count: int
     message: str
     tampered_block_index: int | None = None
-
-
-class CorrectionProposal(BaseModel):
-    """A 'Pull Request' — an agent proposes a correction to an existing block."""
-
-    pr_id: str = Field(..., description="Short UUID identifying this proposal.")
-    target_block_index: int = Field(..., description="Block being corrected.")
-    proposed_by: str = Field(..., description="Agent ID opening the PR.")
-    corrected_payload: dict[str, Any] = Field(..., description="Proposed new payload.")
-    reason: str = Field(..., description="Human-readable reason for the correction.")
-    status: Literal["open", "merged", "rejected"] = "open"
-    created_at: str = Field(..., description="ISO 8601 UTC creation time.")
 
 
 def utc_now_iso() -> str:
