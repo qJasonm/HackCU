@@ -1,0 +1,51 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: #0b0c10;
+  overflow: hidden;
+}
+
+.top-nav {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(20, 20, 30, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 100;
+}
+
+.nav-tab {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid transparent;
+  padding: 10px 24px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.nav-tab:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-tab.active {
+  color: white;
+  background: rgba(160, 140, 255, 0.15);
+  border: 1px solid rgba(160, 140, 255, 0.5);
+  box-shadow: 0 0 15px rgba(160, 140, 255, 0.2);
+}
+
+.main-content-area {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden; /* Each component handles its own scroll logic if needed */
+}
