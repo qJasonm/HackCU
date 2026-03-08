@@ -106,7 +106,7 @@ cd ~/Documents/my-ai-project
 Use **Git** to clone the ABC repository directly into your project folder:
 
 ```bash
-git clone https://github.com/qJasonm/HackCU
+git clone https://github.com/YOUR_USERNAME/abc.git
 ```
 
 > **What is Git?** Git is a version control tool that downloads code from repositories (online storage). If you don't have Git installed, download it from [git-scm.com](https://git-scm.com/downloads).
@@ -119,14 +119,53 @@ After cloning, you'll have a new `abc/` folder containing:
 - `dashboard/` — Web-based visual interface
 - `pyproject.toml` — Configuration file
 
-### Step 4: Install ABC
+### Step 4: Create a Virtual Environment
 
-From your terminal, navigate into the cloned ABC folder and install it:
+A **virtual environment** is an isolated Python workspace that keeps ABC's dependencies separate from your system Python. This is required on most modern Linux systems and recommended everywhere.
 
 ```bash
-# Navigate to the abc folder (adjust path as needed)
-cd HackCU/abc
+# Navigate into the abc folder
+cd abc
 
+# Create a virtual environment named "venv"
+python3 -m venv venv
+```
+
+**What does this do?**
+- Creates a folder called `venv/` containing a private copy of Python
+- Keeps your project's packages separate from other projects
+
+### Step 5: Activate the Virtual Environment
+
+Before installing or running ABC, you must **activate** the virtual environment:
+
+**Linux / Mac:**
+```bash
+source venv/bin/activate
+```
+
+**Windows (Command Prompt):**
+```cmd
+venv\Scripts\activate.bat
+```
+
+**Windows (PowerShell):**
+```powershell
+venv\Scripts\Activate.ps1
+```
+
+After activation, you should see `(venv)` at the beginning of your terminal prompt, like this:
+```
+(venv) atom@laptop:~/abc$
+```
+
+> **Important:** You need to activate the virtual environment every time you open a new terminal to use ABC.
+
+### Step 6: Install ABC
+
+Now install ABC inside the activated virtual environment:
+
+```bash
 # Install ABC and its dependencies
 pip install -e .
 ```
@@ -136,12 +175,7 @@ pip install -e .
 - `-e .` means "install this folder in editable mode" — so you can modify the code and see changes immediately
 - This installs dependencies like `typer` (for CLI), `rich` (for pretty output), and `pydantic` (for data validation)
 
-**If you see permission errors**, try:
-```bash
-pip install --user -e .
-```
-
-### Step 5: Verify Installation
+### Step 7: Verify Installation
 
 Test that ABC was installed correctly:
 
@@ -166,9 +200,235 @@ Commands:
 
 ---
 
+## Using the Dashboard (Web Interface)
+
+The dashboard provides a visual way to view and manage your ledger. **Start here** — it's the easiest way to see ABC in action!
+
+### Step 8: Install Dashboard Dependencies
+
+The dashboard needs a few extra packages. Install them (make sure your virtual environment is still activated):
+
+```bash
+pip install fastapi uvicorn sse-starlette httpx
+```
+
+### Step 9: Start the Dashboard
+
+```bash
+python dashboard/run.py
+```
+
+You should see:
+```
+[abc-dashboard] Scratchpad: /your/project/scratchpad
+INFO:     Uvicorn running on http://127.0.0.1:7070
+```
+
+### Step 10: Open the Dashboard in Your Browser
+
+Open your web browser and go to: **http://127.0.0.1:7070**
+
+**What is 127.0.0.1?** This is also called "localhost" — it means "this computer." The dashboard runs on your own machine, not on the internet.
+
+**What is port 7070?** A port is like a specific "door" into your computer. Port 7070 is where the dashboard is listening for web traffic.
+
+### Dashboard Features
+
+**Left Sidebar — Agent Registry:**
+- Shows all agents that have recorded actions
+- Green dot = recently active
+- Click an agent to filter the view
+
+**Main Area — Block Feed:**
+- Scrolling list of all ledger entries
+- Each block shows: index, action type, agent, timestamp, payload preview, and hash
+- Click a block to see full details
+
+**Filter Bar:**
+- Search by agent name, action type, or payload content
+- Type to instantly filter the visible blocks
+
+**Verify Integrity Button:**
+- Click to re-check all hashes
+- Green = all good
+- Red = tampering detected
+
+### Registering an Agent
+
+Before an AI agent can record actions, it should be registered in ABC. This helps you track which agents are active and what they do.
+
+#### Step 11: Open the Add Agent Form
+
+In the left sidebar of the dashboard, click the **+ Add** button next to "Agents."
+
+#### Step 12: Fill in Agent Details
+
+A form will appear with three fields:
+
+1. **Agent ID** — A unique name for this agent (e.g., `copilot`, `claude-assistant`, `my-coding-bot`)
+   - Use lowercase letters, numbers, and hyphens
+   - This is how the agent identifies itself when recording actions
+
+2. **Description** — A brief description of what this agent does
+   - Example: "GitHub Copilot coding assistant"
+   - Example: "Research and analysis bot"
+
+3. **Default Endpoint** (optional) — If your agent runs as a service, enter its URL here
+   - Leave blank if your agent doesn't have a web endpoint
+   - Example: `http://localhost:8080`
+
+#### Step 13: Click Add
+
+Click the **Add** button. Your agent will appear in the left sidebar.
+
+> **Note:** Agents can also register themselves automatically! When an agent records its first action with `abc record --agent-id my-agent ...`, it will appear in the registry even if you didn't manually add it.
+
+### Connecting Your IDE Agent
+
+If you're using an AI coding assistant (like GitHub Copilot, Claude, or a custom agent), you can have it record actions to ABC. There are two approaches:
+
+**Option 1: Manual Recording (Simple)**
+
+After your AI agent completes a task, manually record it:
+```bash
+abc record --agent-id copilot --action code_written --payload '{"file": "main.py", "description": "Added error handling"}'
+```
+
+**Option 2: Auto-Recorder (Automatic)**
+
+ABC includes a file watcher that automatically records file changes. This is perfect for tracking what your IDE agents modify.
+
+**Step 1: Open a New Terminal**
+
+The dashboard is still running in your first terminal, so you need a second one:
+- **VS Code**: Click the `+` icon in the terminal panel, or press `` Ctrl+Shift+` ``
+- **Linux**: Press `Ctrl+Alt+T`
+- **Mac**: Press `Cmd+T` in Terminal
+- **Windows**: Open a new Command Prompt window
+
+**Step 2: Navigate to the ABC Folder**
+
+```bash
+cd /path/to/your/project/ABC
+```
+
+Replace `/path/to/your/project` with your actual project path.
+
+**Step 3: Reactivate the Virtual Environment**
+
+Each new terminal starts fresh, so you must activate venv again:
+
+**Linux / Mac:**
+```bash
+source venv/bin/activate
+```
+
+**Windows:**
+```cmd
+venv\Scripts\activate.bat
+```
+
+You should see `(venv)` appear in your prompt.
+
+**Step 4: Install Watchdog and Start the Auto-Recorder**
+
+```bash
+# Install watchdog (only needed once)
+pip install watchdog
+
+# Start watching your project folder (must exist!)
+python auto_recorder.py --watch /path/to/your/code --agent-id copilot --ledger ./ledger.md
+```
+
+**Example:** To watch your current directory:
+```bash
+python auto_recorder.py --watch . --agent-id copilot --ledger ./ledger.md
+```
+
+> **Important:** The watched folder must exist before starting the auto-recorder. If you get `FileNotFoundError`, create the folder first or use `.` to watch the current directory.
+
+The auto-recorder will automatically create ledger entries whenever files are created, modified, renamed, or deleted in the watched folder.
+
+**What gets recorded:**
+- `file_saved` — A file was modified
+- `file_created` — A new file appeared
+- `file_deleted` — A file was removed
+- `file_renamed` — A file was moved or renamed
+
+> **Tip:** Run the auto-recorder in a separate terminal while you work. It will silently track all file changes in the background.
+
+### Configuring the Overseer LLM
+
+The **Overseer** is an AI that reads agent outputs and structures them into clean ledger blocks. You need to configure an LLM provider for it to work. **All configuration is done inside the dashboard.**
+
+#### Step 14: Open the Assign Tab
+
+In the dashboard, click the **Assign** tab in the top navigation. This is where you configure which AI model the Overseer uses.
+
+#### Step 15: Choose Your LLM Provider
+
+Select one of the available platforms from the dropdown:
+
+**Option A: Google Gemini (Recommended for beginners)**
+1. Select **"Gemini"** from the platform dropdown
+2. Paste your API key in the input field
+3. Click **Save**
+
+> **How to get a Gemini API key:** Visit [makersuite.google.com](https://makersuite.google.com/app/apikey), sign in with Google, and create an API key. It's free for limited use.
+
+**Option B: OpenAI**
+1. Select **"OpenAI"** from the platform dropdown
+2. Paste your API key in the input field
+3. Click **Save**
+
+> **How to get an OpenAI API key:** Visit [platform.openai.com/api-keys](https://platform.openai.com/api-keys), sign in, and create a new secret key.
+
+**Option C: Anthropic (Claude)**
+1. Select **"Anthropic"** from the platform dropdown
+2. Paste your API key in the input field
+3. Click **Save**
+
+> **How to get an Anthropic API key:** Visit [console.anthropic.com](https://console.anthropic.com), sign in, and create an API key.
+
+**Option D: Ollama (Local Model — Free, Private)**
+
+**Ollama** lets you run AI models locally on your own computer — no API key needed, and your data never leaves your machine.
+
+1. **Install Ollama:** Download from [ollama.ai](https://ollama.ai)
+
+2. **Pull a model** (in a terminal):
+   ```bash
+   ollama pull llama3
+   ```
+
+3. **Start Ollama** (if not already running):
+   ```bash
+   ollama serve
+   ```
+   
+   > **Got "address already in use" error?** That's fine! It means Ollama is already running as a background service on your system. Skip this step and proceed to configuring it in the dashboard.
+
+4. **In the dashboard Assign tab:**
+   - Select **"Ollama (local)"** as the platform
+   - URL: `http://localhost:11434` (default)
+   - Model: `llama3` (or whichever model you pulled)
+   - Click **Save**
+
+> **Note:** Local models require decent hardware. A computer with 8GB+ RAM can run smaller models like `llama3:8b`.
+
+#### Where Are Keys Stored?
+
+Your API keys are stored in your browser's **localStorage** — they stay on your computer and are never sent anywhere except to the AI provider you selected. If you clear your browser data, you'll need to re-enter your key.
+
+### Stopping the Dashboard
+
+Press `Ctrl+C` in the terminal where the dashboard is running.
+
+---
+
 ## Using the CLI (Command Line Interface)
 
-The CLI is the primary way to interact with ABC. Here are the main commands:
+The CLI provides a text-based way to interact with ABC. Use it for scripting, automation, or when you prefer typing commands.
 
 ### Recording an Action
 
@@ -245,61 +505,6 @@ abc diff 3 7
 ```
 
 This compares the payload of block #3 with block #7, showing additions (`+`) and deletions (`-`).
-
----
-
-## Using the Dashboard (Web Interface)
-
-The dashboard provides a visual way to view and manage your ledger.
-
-### Starting the Dashboard
-
-```bash
-# Install dashboard dependencies first (one-time setup)
-pip install fastapi uvicorn sse-starlette httpx
-
-# Start the dashboard server
-python dashboard/run.py
-```
-
-You should see:
-```
-[abc-dashboard] Scratchpad: /your/project/scratchpad
-INFO:     Uvicorn running on http://127.0.0.1:7070
-```
-
-### Opening the Dashboard
-
-Open your web browser and go to: **http://127.0.0.1:7070**
-
-**What is 127.0.0.1?** This is also called "localhost" — it means "this computer." The dashboard runs on your own machine, not on the internet.
-
-**What is port 7070?** A port is like a specific "door" into your computer. Port 7070 is where the dashboard is listening for web traffic.
-
-### Dashboard Features
-
-**Left Sidebar — Agent Registry:**
-- Shows all agents that have recorded actions
-- Green dot = recently active
-- Click an agent to filter the view
-
-**Main Area — Block Feed:**
-- Scrolling list of all ledger entries
-- Each block shows: index, action type, agent, timestamp, payload preview, and hash
-- Click a block to see full details
-
-**Filter Bar:**
-- Search by agent name, action type, or payload content
-- Type to instantly filter the visible blocks
-
-**Verify Integrity Button:**
-- Click to re-check all hashes
-- Green = all good
-- Red = tampering detected
-
-### Stopping the Dashboard
-
-Press `Ctrl+C` in the terminal where the dashboard is running.
 
 ---
 
