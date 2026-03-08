@@ -2,108 +2,136 @@
 
 **Persistent Multi-Agent Coordination & Long-Term Memory Framework**
 
-Agent Ledger provides a protocol-level coordination layer for AI agents working on shared codebases. It ensures agents don't overwrite each other's work, maintains a complete audit trail of all actions, and provides long-term memory that persists across sessions.
-
-## Architecture
-
-```
-┌──────────────┐  ┌──────────────┐  ┌──────────────┐
-│  VS Code Ext │  │  CLI Client  │  │  Agent SDK   │
-└──────┬───────┘  └──────┬───────┘  └──────┬───────┘
-       │                 │                 │
-       └─────────────────┼─────────────────┘
-                         │ HTTP/REST
-              ┌──────────┴──────────┐
-              │   MCP Server        │
-              │  ┌───────────────┐  │
-              │  │ Auth (JWT)    │  │
-              │  │ Lease Manager │  │
-              │  │ Event Tree    │  │
-              │  │ Active Tail   │  │
-              │  │ Audit Log     │  │
-              │  └───────┬───────┘  │
-              │          │          │
-              │  ┌───────┴───────┐  │
-              │  │  SQLite (WAL) │  │
-              │  └───────────────┘  │
-              └─────────────────────┘
-```
+Agent Ledger provides a protocol-level coordination layer for AI agents working on shared codebases. It prevents agents from overwriting each other's work, maintains a complete audit trail, and provides long-term memory across sessions.
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-pnpm install
+pnpm install && pnpm build
+node packages/mcp-server/dist/index.js    # Start server on :3000
+open http://localhost:3000/dashboard       # Live dashboard
+bash demo.sh                              # Run multi-agent demo
+```
 
-# Build all packages
-pnpm build
+> Full setup guide: **[QUICKSTART.md](./QUICKSTART.md)** — install, VS Code/Copilot config, curl commands, CLI usage
 
-# Start the server
-node packages/mcp-server/dist/index.js
+## Architecture
 
-# In another terminal — register an agent
-node packages/cli/dist/index.js register -a my-agent -t worker
-
-# Execute a coordinated action
-node packages/cli/dist/index.js exec -a my-agent -r src/app.ts -i "Add auth" --result '{"action":"done"}'
-
-# Check system status
-node packages/cli/dist/index.js status -a my-agent
+```
+  ┌──────────────┐   ┌──────────────┐   ┌──────────────┐
+  │  VS Code Ext │   │  CLI Client  │   │  MCP Bridge  │
+  │ (file watch) │   │ (commands)   │   │ (AI agents)  │
+  └──────┬───────┘   └──────┬───────┘   └──────┬───────┘
+         └──────────────────┼──────────────────┘
+                            │ HTTP / MCP stdio
+                 ┌──────────┴──────────┐
+                 │   MCP Server (:3000) │
+                 │  ┌───────────────┐   │
+                 │  │ JWT Auth      │   │
+                 │  │ Lease Manager │   │
+                 │  │ Event Tree    │   │
+                 │  │ Active Tail   │   │
+                 │  │ Audit Log     │   │
+                 │  │ Dashboard     │   │
+                 │  └───────┬───────┘   │
+                 │  ┌───────┴───────┐   │
+                 │  │  SQLite (WAL) │   │
+                 │  └───────────────┘   │
+                 └──────────────────────┘
 ```
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| `@agent-ledger/core` | Shared types, SQLite layer, JWT auth, lease management, event tree |
-| `@agent-ledger/mcp-server` | Express REST API server with all endpoints |
-| `@agent-ledger/cli` | Commander.js CLI for agent interaction |
-| `@agent-ledger/vscode-extension` | VS Code extension with file watcher and sidebar |
+| `@agent-ledger/core` | Types, SQLite, JWT auth, lease management, event tree, config |
+| `@agent-ledger/mcp-server` | Express REST API + MCP stdio bridge + dashboard |
+| `@agent-ledger/cli` | Commander.js CLI (register, exec, read, milestone, revoke, status) |
+| `@agent-ledger/vscode-extension` | File watcher, sync protocol, sidebar webview |
 
 ## Key Features
 
-- **Lease-Based File Locking** — Agents acquire file/symbol/region leases before editing. Conflicts are queued with priority-based resolution.
-- **Hierarchical Event Tree** — Events form parent-child trees with correlation IDs, cycle detection, and depth limiting.
-- **Dual JWT Authentication** — Starts with HS256 for simplicity, upgradeable to RS256 for production.
-- **Trust Tiers** — Orchestrator, Worker, Observer, Human — each with different permissions and lease limits.
-- **Unauthorized Edit Detection** — VS Code extension detects external edits and triggers sync protocol (freeze → broadcast → acknowledge).
-- **Append-Only Audit Log** — Every action is logged to monthly Markdown files.
-- **Active Tail** — Per-agent in-memory ring buffer for fast context retrieval.
+- **Lease-Based File Locking** — Agents lock files before editing. Conflicts are queued with priority-based auto-resolution.
+- **Event Tree** — Hierarchical event tracking with correlation IDs, cycle detection, and depth limiting.
+- **12 MCP Tools** — AI agents call `ledger_acquire_lease`, `ledger_report_intent`, etc. as native tools.
+- **Real-Time Dashboard** — Live view of agents, leases, events, and milestones at `/dashboard`.
+- **Trust Tiers** — Orchestrator (admin), Worker (edit), Observer (read-only), Human (trusted).
+- **Unauthorized Edit Detection** — VS Code extension detects external edits → freeze → broadcast → acknowledge.
+- **Append-Only Audit Log** — Monthly Markdown audit files in `.ledger/logs/`.
+
+## VS Code + Copilot Integration
+
+1. Create `.vscode/mcp.json` in your project:
+```json
+{
+  "servers": {
+    "agent-ledger": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["<path-to>/agent-ledger/packages/mcp-server/dist/mcp/bridge.js"],
+      "env": { "LEDGER_SERVER_URL": "http://localhost:3000" }
+    }
+  }
+}
+```
+
+2. Create `.github/copilot-instructions.md` with coordination rules (see [QUICKSTART.md](./QUICKSTART.md))
+
+3. Reload VS Code → register via Copilot Chat → agents auto-coordinate
 
 ## API Endpoints
 
-### Auth
-- `POST /auth/register` — Register agent, receive JWT
-- `GET /auth/public-key` — Get RS256 public key
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/health` | GET | No | Health check |
+| `/dashboard` | GET | No | Live web dashboard |
+| `/auth/register` | POST | No | Register agent, get JWT |
+| `/lease/acquire` | POST | Yes | Lock a file |
+| `/lease/release` | POST | Yes | Unlock a file |
+| `/lease/heartbeat` | POST | Yes | Keep lease alive |
+| `/lease/escalate` | POST | Yes | Expand lease scope |
+| `/ledger/report-intent` | POST | Yes | Log intent |
+| `/ledger/report-action` | POST | Yes | Log result |
+| `/ledger/latest` | GET | Yes | Recent entries |
+| `/ledger/query` | GET | Yes | Search events |
+| `/ledger/milestone` | POST | Yes | Declare milestone |
+| `/sync/notify-external-edit` | POST | Yes | Report unauthorized edit |
+| `/sync/acknowledge` | POST | Yes | Acknowledge sync |
+| `/sync/pending` | GET | Yes | Check pending syncs |
+| `/admin/status` | GET | Yes | System overview |
+| `/admin/revoke-session` | POST | Yes | Revoke session (admin) |
+| `/admin/revoke-agent` | POST | Yes | Revoke agent (admin) |
+| `/admin/rotate-key` | POST | Yes | Rotate JWT keys (admin) |
 
-### Lease
-- `POST /lease/acquire` — Request a file lease
-- `POST /lease/release` — Release a lease
-- `POST /lease/escalate` — Expand lease scope
-- `POST /lease/heartbeat` — Keep lease alive
+## MCP Tools (for AI Agents)
 
-### Ledger
-- `POST /ledger/report-intent` — Log intent before action
-- `POST /ledger/report-action` — Log ground truth after action
-- `GET /ledger/latest` — Get latest entries
-- `GET /ledger/query` — Search events
-- `POST /ledger/milestone` — Declare milestone
-
-### Admin
-- `POST /admin/revoke-session` — Revoke a session
-- `POST /admin/revoke-agent` — Revoke all agent sessions
-- `POST /admin/rotate-key` — Nuclear key rotation
-- `POST /admin/upgrade-auth` — Migrate HS256 → RS256
-- `GET /admin/status` — System overview
-
-### Sync
-- `POST /sync/notify-external-edit` — Report unauthorized edit
-- `POST /sync/acknowledge` — Acknowledge sync
-- `GET /sync/pending` — Check pending sync requirements
+| Tool | Purpose |
+|------|---------|
+| `ledger_register` | Register and get token |
+| `ledger_acquire_lease` | Lock a file before editing |
+| `ledger_release_lease` | Unlock when done |
+| `ledger_heartbeat` | Keep lease alive |
+| `ledger_report_intent` | Log what you plan to do |
+| `ledger_report_action` | Log what you did |
+| `ledger_read_history` | Read recent entries |
+| `ledger_search` | Search events |
+| `ledger_status` | System overview |
+| `ledger_declare_milestone` | Mark a milestone |
+| `ledger_check_sync` | Check external edit notifications |
+| `ledger_acknowledge_sync` | Acknowledge external edits |
 
 ## Configuration
 
-Place `ledger_config.json` and `janitor_config.json` in your project root. See `packages/core/src/config.ts` for defaults.
+Place `ledger_config.json` in your project root to override defaults:
+
+```json
+{
+  "server": { "port": 3000, "host": "0.0.0.0" },
+  "jwt": { "mode": "hs256" },
+  "lease": { "ttl_ms": 300000, "heartbeat_interval_ms": 60000 },
+  "storage": { "db_path": ".ledger/ledger.db" }
+}
+```
 
 ## Team
 
