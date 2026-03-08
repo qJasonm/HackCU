@@ -1,5 +1,5 @@
 """
-Pydantic models for the ABC ledger.
+Pydantic models for the abc ledger.
 """
 
 from __future__ import annotations

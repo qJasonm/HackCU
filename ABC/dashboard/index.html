@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>ABC — Agent BlockChain Dashboard</title>
+<title>ABC — Orchestration Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0f14;--surface:#151820;--surface2:#1c2030;--surface3:#232840;
-  --border:#2a3050;--text:#e2e8f0;--muted:#6b7494;--dim:#3d4668;
-  --accent:#6366f1;--accent-g:#818cf8;
-  --green:#22c55e;--amber:#f59e0b;--red:#ef4444;--teal:#14b8a6;
+  --bg:#0c0e14;--surface:#151822;--surface2:#1e2230;--surface3:#2a2f42;
+  --border:#363c52;--text:#f0f2f8;--muted:#8b92a5;--dim:#4a5168;
+  --accent:#8364e8;--accent-g:#00e7df;
+  --green:#10b981;--amber:#f59e0b;--red:#ef4444;--teal:#14b8a6;
   --purple:#a855f7;--blue:#3b82f6;--pink:#ec4899;
-  --r:10px;--r-lg:16px;--shadow:0 4px 24px rgba(0,0,0,.4);--glow:0 0 20px rgba(99,102,241,.25);
+  --r:12px;--r-lg:16px;--shadow:0 8px 30px rgba(0,0,0,0.5);--glow:0 0 20px rgba(131,100,232,0.4);
 }
 html{font-size:14px}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
@@ -28,8 +28,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .hdr{grid-area:hdr;display:flex;align-items:center;gap:12px;padding:0 20px;
   background:var(--surface);border-bottom:1px solid var(--border);z-index:10}
 .logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:1.05rem}
-.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),#a5b4fc);
-  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--accent-g));
+  border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:var(--shadow);border:none;}
 .hdr-stats{display:flex;align-items:center;gap:10px;margin-left:auto}
 .chip{display:flex;align-items:center;gap:6px;padding:4px 10px;
   background:var(--surface2);border:1px solid var(--border);border-radius:99px;
@@ -38,8 +38,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 .btn-hdr{display:flex;align-items:center;gap:6px;padding:6px 12px;
   background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);
-  color:var(--text);font-family:inherit;font-size:.8rem;font-weight:500;cursor:pointer;transition:all .2s}
-.btn-hdr:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent-g)}
+  color:var(--text);font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .3s ease}
+.btn-hdr:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent-g);box-shadow:var(--glow)}
+.btn-hdr:active{transform:scale(0.97)}
 
 /* Sidebars */
 .sidebar-l{grid-area:left;background:var(--surface);border-right:1px solid var(--border);
@@ -81,14 +82,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   font-family:inherit;font-size:.83rem;outline:none;transition:border-color .2s}
 .filter-bar input{flex:1}
 .filter-bar input:focus,.filter-bar select:focus{border-color:var(--accent)}
-.block-feed{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:9px}
+.block-feed{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:18px}
 
 /* Block cards */
-@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 .bcard{background:var(--surface);border:1px solid var(--border);border-left:3px solid;
-  border-radius:var(--r);padding:11px 13px;cursor:pointer;
-  transition:background .2s,box-shadow .2s;animation:slideIn .25s ease both}
-.bcard:hover{background:var(--surface2);box-shadow:var(--shadow)}
+  border-radius:var(--r);padding:14px 16px;cursor:pointer; position: relative;
+  transition:all .3s cubic-bezier(0.2, 0.8, 0.2, 1);animation:slideIn .4s cubic-bezier(0.2, 0.8, 0.2, 1) both;box-shadow:var(--shadow)}
+.bcard:hover{background:var(--surface2);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.4), var(--glow)}
+.bcard:not(:last-child)::after{content:'';position:absolute;bottom:-20px;left:18px;width:2px;height:20px;background:linear-gradient(to bottom, var(--accent) 0%, transparent 100%);opacity:0.6;}
 .bcard.new{box-shadow:0 0 0 1px var(--accent),var(--glow)}
 .bt{display:flex;align-items:center;gap:7px;margin-bottom:5px}
 .bidx{font-family:'JetBrains Mono',monospace;font-size:.68rem;color:var(--muted);flex-shrink:0}
@@ -134,14 +136,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .fi:focus,.fs:focus,.fta:focus{border-color:var(--accent)}
 .fi::placeholder,.fta::placeholder{color:var(--dim)}
 .fs{cursor:pointer}
-.btn-p{width:100%;padding:8px;background:linear-gradient(135deg,var(--accent),#a5b4fc);
-  border:none;border-radius:var(--r);color:#fff;font-family:inherit;font-size:.85rem;
-  font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s}
-.btn-p:hover{opacity:.9}.btn-p:active{transform:scale(.98)}.btn-p:disabled{opacity:.4;cursor:not-allowed}
-.btn-s{width:100%;padding:8px;background:var(--surface2);border:1px solid var(--border);
+.btn-p{width:100%;padding:11px;background:linear-gradient(135deg,var(--accent),var(--accent-g));
+  border:none;border-radius:var(--r);color:#101116;font-family:inherit;font-size:.85rem;
+  font-weight:700;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px;box-shadow:var(--shadow)}
+.btn-p:hover{box-shadow:var(--glow);filter:brightness(1.1);transform:translateY(-1px)}.btn-p:active{transform:translateY(1px)}.btn-p:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(1)}
+.btn-s{width:100%;padding:11px;background:var(--surface2);border:1px solid var(--border);
   border-radius:var(--r);color:var(--text);font-family:inherit;font-size:.83rem;
-  font-weight:500;cursor:pointer;transition:all .2s}
-.btn-s:hover{background:var(--surface3);border-color:var(--accent)}
+  font-weight:600;cursor:pointer;transition:all .3s ease;text-transform:uppercase;letter-spacing:1px}
+.btn-s:hover{background:var(--surface3);border-color:var(--accent);color:var(--accent-g);box-shadow:var(--glow)}.btn-s:active{transform:translateY(1px)}
 .divider{border-top:1px solid var(--border);padding-top:12px;margin-top:2px}
 .btn-ghost{width:100%;padding:7px;background:none;border:1px dashed var(--border);border-radius:var(--r);
   color:var(--muted);font-family:inherit;font-size:.8rem;cursor:pointer;transition:all .2s;text-align:center}
@@ -249,7 +251,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 <!-- Header -->
 <header class="hdr">
-  <div class="logo"><div class="logo-icon">⊞</div> ABC</div>
+    <div class="logo"><div class="logo-icon">♦</div> ABC</div>
   <div class="chip" style="margin-left:12px"><span class="dot"></span> Live</div>
   <div class="hdr-stats">
     <div class="chip">Blocks <span class="val" id="hdr-blocks">—</span></div>
