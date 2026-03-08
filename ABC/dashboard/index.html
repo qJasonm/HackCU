@@ -1071,21 +1071,14 @@ async function assignTask() {
   judgeBlock = null; taskBlockIndex = null;
 
   try {
-    // ────────── STEP 1: Record task_assigned + call AI platform ────────
-    const recRes = await fetch('/api/record', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({agent_id: agentId, action_type:'task_assigned',
-                            payload:{task_type:taskType, prompt}})
-    });
-    if (!recRes.ok) { const d=await recRes.json(); throw new Error(d.detail); }
-    const taskBlock = await recRes.json();
-    taskBlockIndex  = taskBlock.block_index;
+    // ────────── STEP 1: Call AI platform ────────
+    taskBlockIndex = 'Pending';
 
     let agentResponse = null;
     if (currentPlatform !== 'none') {
       agentResponse = await callPlatform(currentPlatform, agentId, taskType, prompt);
     }
-    setPipeStep(1, 'done', `Platform call complete (block #${taskBlockIndex})`);
+    setPipeStep(1, 'done', `Platform call complete`);
 
     if (!agentResponse) {
       // No AI call — ledger-only mode, pipeline ends here
@@ -1108,7 +1101,6 @@ async function assignTask() {
       `# TASK CONTEXT`,
       `- **Agent**: ${agentId}`,
       `- **Task Type**: ${taskType}`,
-      `- **Block**: #${taskBlockIndex}`,
       `- **Timestamp**: ${new Date().toISOString()}`,
       `- **Platform**: ${currentPlatform}`,
       ``,
@@ -1141,7 +1133,7 @@ async function assignTask() {
       await fetch('/api/record', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({agent_id:agentId, action_type:'agent_response',
-          payload:{task_block:taskBlockIndex, task_type:taskType,
+          payload:{task_type:taskType,
                    platform:currentPlatform, raw_response:agentResponse.slice(0,2000)}})
       });
       setPipeStep(4, 'done', 'Raw response recorded (no Judge key)');
@@ -1205,7 +1197,7 @@ async function commitJudgeBlock() {
       body: JSON.stringify({
         agent_id:    judgeBlock.agent_id,
         action_type: judgeBlock.action_type,
-        payload:     Object.assign({judge_model:'gemini', task_block:taskBlockIndex}, judgeBlock.payload)
+        payload:     Object.assign({judge_model: overseerPlatform}, judgeBlock.payload)
       })
     });
     if (!res.ok) { const d=await res.json(); throw new Error(d.detail); }
