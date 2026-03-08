@@ -36,7 +36,7 @@ def main() -> None:
     parser.add_argument(
         "--gemini-key",
         default=None,
-        help="Gemini API key for the LLM Ledger agent (also reads GEMINI_API_KEY env var)",
+        help="Gemini API key for the Overseer Agent (also reads GEMINI_API_KEY env var)",
     )
     args = parser.parse_args()
 
@@ -48,14 +48,17 @@ def main() -> None:
 
     if args.scratchpad_dir:
         _server.SCRATCHPAD_DIR = Path(args.scratchpad_dir).resolve()
-        print(f"[agentctl-dashboard] Scratchpad: {_server.SCRATCHPAD_DIR}")
-    
+    else:
+        _server.SCRATCHPAD_DIR = (ledger_path.parent / "scratchpad").resolve()
+        
+    _server.SCRATCHPAD_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"[agentctl-dashboard] Scratchpad: {_server.SCRATCHPAD_DIR}")
     gemini_key = args.gemini_key or os.environ.get("GEMINI_API_KEY")
     if gemini_key:
         _server.GEMINI_API_KEY = gemini_key
         print(f"[agentctl-dashboard] Gemini API key: configured ✓")
     else:
-        print(f"[agentctl-dashboard] Gemini API key: not set (LLM Ledger will require key from browser)")
+        print(f"[agentctl-dashboard] Gemini API key: not set (Overseer will require key from browser)")
 
     print(f"[agentctl-dashboard] Ledger:    {ledger_path}")
     print(f"[agentctl-dashboard] Dashboard: http://{args.host}:{args.port}")

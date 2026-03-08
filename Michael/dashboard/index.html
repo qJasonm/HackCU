@@ -962,7 +962,12 @@ async function callOllama(agentId, taskType, prompt) {
       ]
     })
   });
-  if (!r.ok) { const d=await r.json(); throw new Error(d.detail || `Ollama ${r.status}`); }
+  if (!r.ok) { 
+    const errText = await r.text();
+    let detail = errText;
+    try { detail = JSON.parse(errText).detail || detail; } catch {}
+    throw new Error(detail);
+  }
   const d = await r.json();
   return d.content;
 }
@@ -1146,27 +1151,34 @@ async function assignTask() {
       return;
     }
 
-    // Call the Gemini Judge via /api/llm/analyze
-    const judgeRes = await fetch('/api/llm/analyze', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        scratchpad: spContent,
-        agent_id:   agentId,
-        api_key:    judgeKey,
-        model:      judgeModel,
-      })
-    });
-
-    if (!judgeRes.ok) {
-      const d = await judgeRes.json();
-      setPipeStep(3, 'error', `Judge error: ${d.detail}`);
-      toast('Judge failed: ' + d.detail, 'error');
-      btn.disabled=false; btn.textContent='⚡ Dispatch Task';
-      return;
+    // Call the selected Overseer Judge
+    if (overseerPlatform === 'gemini') {
+      const judgeRes = await fetch('/api/llm/analyze', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          scratchpad: spContent,
+          agent_id:   agentId,
+          api_key:    judgeKey,
+          model:      judgeModel,
+        })
+      });
+      if (!judgeRes.ok) {
+        const d = await judgeRes.json();
+        setPipeStep(3, 'error', `Judge error: ${d.detail}`);
+        toast('Judge failed: ' + d.detail, 'error');
+        btn.disabled=false; btn.textContent='⚡ Dispatch Task';
+        return;
+      }
+      judgeBlock = (await judgeRes.json()).suggested_block;
+    } else if (overseerPlatform === 'openai') {
+      judgeBlock = await overseerCallOpenAI(spContent, judgeKey, judgeModel);
+    } else if (overseerPlatform === 'anthropic') {
+      judgeBlock = await overseerCallAnthropic(spContent, judgeKey, judgeModel);
+    } else if (overseerPlatform === 'ollama') {
+      judgeBlock = await overseerCallOllama(spContent, judgeKey, judgeModel);
     }
 
-    const judgeData = await judgeRes.json();
-    judgeBlock = judgeData.suggested_block;
+    if (!judgeBlock) throw new Error('No structured output received from Judge.');
     setPipeStep(3, 'done', 'Judge structured the output');
 
     // ────────── STEP 4: Show for review ───────────
@@ -1335,7 +1347,7 @@ function sendScatchpadToOverseer() {
   toast('Sent to Overseer \u2713','info');
 }
 
-/* \u2500\u2500 Overseer (was LLM Ledger) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
+/* \u2500\u2500 Overseer \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500 */
 let overseerPlatform     = 'gemini';
 let overseerLastBlock    = null;
 let overseerCurrentFile  = null; // { name, content }
@@ -1445,6 +1457,27 @@ async function overseerScan() {
 
   } catch(e) { toast('Overseer error: '+e.message,'error'); }
   finally { btn.disabled=false; btn.textContent='\u2696 Scan & Structure'; }
+}
+
+function overseerSystemPrompt() {
+  return `You are the Ledger Judge — an impartial AI whose ONLY job is "GitHub for Agents".
+
+You receive a scratchpad document containing an agent's reasoning, task context, and responses.
+Extract what the agent actually did and return ONE JSON object in this EXACT schema.
+IMPORTANT: Output ONLY the raw JSON — no markdown fences, no backticks, no prose before or after.
+{
+  "agent_id":    "<string>",
+  "action_type": "<snake_case: task_completed|code_written|analysis_done|plan_created|review_completed|error_encountered|...>",
+  "payload": {
+    "summary":         "<one crisp sentence>",
+    "reasoning":       "<key reasoning steps or decisions>",
+    "outputs":         "<concrete outputs: code, plans, answers>",
+    "tasks_done":      ["<item>"],
+    "tasks_pending":   ["<item>"],
+    "files_mentioned": ["<path>"],
+    "confidence":      "<high|medium|low>"
+  }
+}`;
 }
 
 /**
