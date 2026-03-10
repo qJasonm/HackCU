@@ -1,0 +1,2 @@
+[console_scripts]
+abc = cli.main:app

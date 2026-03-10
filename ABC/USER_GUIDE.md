@@ -6,16 +6,26 @@ Welcome! This guide will walk you through everything you need to know to set up 
 
 ## What is ABC?
 
-**ABC (Agent BlockChain)** is like a "diary" or "audit trail" for AI agents. When AI agents perform tasks (like writing code, answering questions, or making decisions), ABC records *exactly* what they did, when they did it, and why—in a way that **cannot be tampered with**.
+**ABC (Agent BlockChain)** is like a "diary" or "audit trail" for AI agents. When AI agents perform tasks (like writing code, answering questions, or making decisions), ABC records *exactly* what they did, when they did it, and why. Additionally ABC incorporates a hashing algorithm so the block chain. **cannot be tampered with**.
 
 ### Why does this matter?
 
-Imagine you have an AI agent that manages files or writes code for you. Later, you might want to know:
-- "What did this agent do yesterday?"
-- "Who told it to delete that file?"
-- "Can I trust that this log hasn't been modified?"
+Imagine you have AI agents that manage files, write code for you, and collectively work on projects over long spans of time. An issue you might run into is getting all of these agents to pick up where other agents left off efficiently. Suppose Agent A makes a change to your codebase that depends strictly on its own reasoning—how will Agent B pick up on some of the more subtle changes that are actually crucial design decisions?
 
-ABC answers all of these questions by using **blockchain-style technology**—every action is recorded with a unique "fingerprint" (called a **hash**) that links to the previous record. If anyone tries to change past records, the fingerprints won't match, and you'll know something was tampered with.
+More importantly, does Agent A's reasoning follow a logical basis that makes sense for the direction of the project, and is that communicated to the other agents that depend on Agent A's actions? Typically, it doesn't—and this results in a cascade of issues.
+
+During the development process, agents might take actions like:
+"Switching from Pydantic to LangChain"
+"Moving from a Postgres database to MongoDB"
+Or maybe you just want to know:
+"What did these agents do yesterday or last week?"
+"Why did this particular agent delete that file?"
+
+ABC answers all of these questions by using blockchain-style technology. ABC optimizes agentic orchestration by providing agents with a constant source of ground truth for every action that is taken.
+
+Each agent’s action is compressed into a data-efficient payload that extracts the most crucial details from the agent's reasoning and any changes it made to your code. These contextual updates are then passed along to any agent that depends on the previous agent’s actions, preventing catastrophic development issues throughout the course of a project.
+
+To top it all off, every action is recorded with a unique "fingerprint" (called a hash) that links to the previous record—making the system securely tamper-resistant from any external source.
 
 ### Key Concepts (Quick Glossary)
 
